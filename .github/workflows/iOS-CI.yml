@@ -1,0 +1,55 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    name: Build and Test
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: |
+          sudo xcode-select -s /Applications/Xcode-15.2.0.app
+          xcodebuild -version
+
+      - name: Build project
+        run: |
+          xcodebuild build-for-testing \
+            -project AudioPlayerSample.xcodeproj \
+            -scheme AudioPlayerSample \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15 pro,OS=17.2' \
+            -derivedDataPath ./build
+
+      - name: Run testing
+        run: |
+          xcodebuild test-without-building \
+            -project AudioPlayerSample.xcodeproj \
+            -scheme AudioPlayerSample \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15 pro,OS=17.2' \
+            -derivedDataPath ./build
+
+      - name: Clean up build directory
+        run: |
+          rm -rf ./build
+
+      - name: Verify cleanup
+        run: |
+          if [ ! -d ./build ]; then
+            echo "✅ Build directory successfully removed."
+          else
+            echo "❌ Build directory removal failed."
+            exit 1
+          fi
+
+
+      

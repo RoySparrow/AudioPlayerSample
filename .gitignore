@@ -5,6 +5,9 @@
 ## MacOS
 **/.DS_Store
 
+## CI
+build/
+
 ## User settings
 xcuserdata/
 
